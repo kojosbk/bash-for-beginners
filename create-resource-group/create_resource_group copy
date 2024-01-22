@@ -1,0 +1,91 @@
+#!/bin/bash
+# This is the shebang line, indicating that the script should be interpreted and executed using the Bash shell.
+
+# A script that will create a resource group in Azure
+
+setup() { 
+    # Install az cli
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+    # Downloads and installs the Azure CLI.
+
+    # Login
+    az login --use-device-code
+    # Initiates a login using device code authentication.
+
+    echo "You're logged in."
+    # Prints a message indicating successful login.
+}
+
+# Print out 5 recommended regions
+print_out_regions() {
+    regions_array=($( az account list-locations --query "[?metadata.regionCategory=='Recommended'].{Name:name}" -o tsv | head -n 5))
+    # Retrieves the names of recommended regions using Azure CLI and stores them in an array.
+
+    for i in "${regions_array[@]}"
+    do
+       echo "$i"
+       # Iterates through the array and prints each region name.
+    done
+}
+
+# Select a region
+check_region() {
+    local region_exists=false
+    while [[ "$region_exists" = false ]];  do
+        print_out_regions
+        # Calls the print_out_regions function to display recommended regions.
+
+        read -p "Enter your region: " selected_region
+        # Prompts the user to enter a region.
+
+        for j in "${regions_array[@]}"
+        do
+            if [[ "$selected_region" == "$j" ]]; then
+                region_exists=true
+                # Sets region_exists to true if the selected region is in the array.
+                echo "Region exists"
+                # Prints a message indicating that the region exists.
+                break
+            else
+                continue
+            fi
+        done
+    done
+}
+
+# Check if resource group already exists.
+check_resource_group () {
+    while true; do
+        read -p "Enter a name for your resource group: " resource_group
+        # Prompts the user to enter a name for the resource group.
+
+        if [ $(az group exists --name $resource_group) = true ]; then 
+            echo "The group $resource_group exists in $selected_region, please provide another name..."
+            # Checks if the group already exists and prompts the user to provide another name if it does.
+        else
+            break
+        fi
+    done
+}
+
+# Create the resource group
+create_resource_group () {
+    echo "Creating resource group: $resource_group in $selected_region"
+    # Prints a message indicating the creation of the resource group.
+
+    az group create -g $resource_group -l $selected_region | grep provisioningState
+    # Creates the resource group and uses grep to filter the output for the provisioningState information.
+}
+
+# List all resource groups
+list_resource_groups() {
+    az group list -o table
+    # Lists all resource groups in a tabular format.
+}
+
+# setup
+check_region
+check_resource_group 
+create_resource_group
+list_resource_groups
+# Calls the functions to set up, select a region, check for existing resource groups, create a resource group, and list all resource groups.

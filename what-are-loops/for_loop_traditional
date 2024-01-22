@@ -1,10 +1,12 @@
 #!/bin/bash
+# Above line is the shebang, indicating that the script should be interpreted using the Bash shell.
 
-# Print values in an array using for loops
-
+# Declare an array named 'services' with three elements.
 services=("loadbalancer" "virtualmachine" "storage")
 
+# Start a for loop that iterates over each element in the 'services' array.
 for i in "${services[@]}"
 do
+   # Inside the loop, echo/print the value of the current element in the array.
    echo $i
 done

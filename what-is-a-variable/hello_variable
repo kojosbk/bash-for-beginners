@@ -1,5 +1,7 @@
 #!/bin/bash
 
 # Welcome to your first Bash Script
-
-echo 'Hello World!'
+message='mama zimbe'
+current_dir=$(pwd)
+readonly vairable_wont_change="more"
+echo "$message is talking to us from $current_dir and $vairable_wont_change"
